@@ -131,20 +131,23 @@ for line in fileinput.input():
     else:
         destination_node = me.destination
 
+    
+
     # Logic for choosing stance
-    if game.has_monster(destination_node):
-        chosen_stance = get_winning_stance(game.get_monster(destination_node).stance)
-
-    elif game.has_monster(me.location):
-        chosen_stance = get_winning_stance(game.get_monster(me.location).stance)
-
-    else:
+    if enemy.location == me.location:
         if enemyStances[0] > enemyStances[1] and enemyStances[0] > enemyStances[2]:
             chosen_stance = "Paper"
         elif enemyStances[1] > enemyStances[2] and enemyStances[1] > enemyStances[0]:
             chosen_stance = "Scissors"
         else:
             chosen_stance = "Rock"
+
+    elif game.has_monster(me.location) and not game.get_monster(me.location).dead:
+        chosen_stance = get_winning_stance(game.get_monster(me.location).stance)
+        game.log(str(chosen_stance))
+
+    #elif game.has_monster(destination_node):
+    #    chosen_stance = get_winning_stance(game.get_monster(destination_node).stance)
 
     # Keep track of enemy moves
     updateEnemyStances();
