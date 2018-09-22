@@ -29,14 +29,8 @@ def shouldAttack(monster):
         return True
 
     turnsToRespawn = monster.respawn_counter
-    monsterLoc = monster.location
 
-    paths = game.shortest_paths(game.get_self().location, monster.location)
-    nodeAmount = length(paths[0])
-
-    RestTurnsToMove = 7 - game.get_self().speed
-    totalTurnsToMove = RestTurnsToMove * nodeAmount
-
+    totalTurnsToMove = get_distance(me.location, monster.location, me.speed)
     return totalTurnsToMove  >= turnsToRespawn
 
 def get_lowest_attack():
