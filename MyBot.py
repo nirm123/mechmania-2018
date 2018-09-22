@@ -122,15 +122,19 @@ for line in fileinput.input():
         monster_to_move_to = get_monster_node_for_attack_balance()# monsters[random.randint(0, len(monsters)-1)]
 
         # get the set of shortest paths to that monster
-        paths = game.shortest_paths(me.location, monster_to_move_to)
-        destination_node = paths[random.randint(0, len(paths)-1)][0]
+        paths = get_best_path_for_attack_balance()#game.shortest_paths(me.location, monster_to_move_to)
+        destination_node = paths[0]
 
     else:
         destination_node = me.destination
 
-    if game.has_monster(me.location):
+    if game.has_monster(destination_node):
+        monster_next = game.get_monster(destination_node)
+        chosen_stance = get_winning_stance(monster_next.stance)
+
+    #if game.has_monster(me.location):
         # if there's a monster at my location, choose the stance that damages that monster
-        chosen_stance = get_winning_stance(game.get_monster(me.location).stance)
+        #chosen_stance = get_winning_stance(game.get_monster(me.location).stance)
     else:
         # otherwise, pick a random stance
         chosen_stance = stances[random.randint(0, 2)]
