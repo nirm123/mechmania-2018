@@ -27,10 +27,10 @@ def updateEnemyStances():
             enemyStances[2] += 1
 
 # Check if monster will be arrive by the time we arrive
-def shouldAttack(monster):
+def shouldAttack(monster, shift):
     if not monster.dead:
         return True
-    turnsToRespawn = monster.respawn_counter
+    turnsToRespawn = monster.respawn_counter - shift
     totalTurnsToMove = get_distance(me.location, monster.location, me.speed)
     return totalTurnsToMove  >= turnsToRespawn
 
@@ -55,15 +55,15 @@ def get_monster_node_for_attack_balance():
         paths = game.shortest_paths(me.location, monster.location)
         if (len(paths[0]) < 3):
             if (lowest_attack == "rock"):
-                if (monster.death_effects.rock > highest and shouldAttack(monster)):
+                if (monster.death_effects.rock > highest and shouldAttack(monster, 0)):
                     highest = monster.death_effects.rock
                     node = monster.location
-            elif (lowest_attack == "paper" and shouldAttack(monster)):
+            elif (lowest_attack == "paper" and shouldAttack(monster, 0)):
                 if (monster.death_effects.paper > highest):
                     highest = monster.death_effects.paper
                     node = monster.location
             else:
-                if (monster.death_effects.scissors > highest and shouldAttack(monster)):
+                if (monster.death_effects.scissors > highest and shouldAttack(monster, 0)):
                     highest = monster.death_effects.scissors
                     node = monster.location
     return node
@@ -79,7 +79,7 @@ def get_best_path_for_attack_balance():
             if (not game.has_monster(node)):
                 continue
             weight = 1
-            if (shouldAttack(game.get_monster(node))):
+            if (shouldAttack(game.get_monster(node), 0)):
                 weight = 2
             if (lowest_attack == "rock"):
                 total += weight*game.get_monster(node).death_effects.rock-5*game.get_monster(node).attack
@@ -122,7 +122,7 @@ for line in fileinput.input():
     enemy = game.get_opponent()
     game.log(str(me.location))
     enemy_distance = min(get_distance(me.location, enemy.location, me.speed), get_distance(me.location, enemy.location, enemy.speed))
-    if shouldAttack(game.get_monster(0)):
+    if shouldAttack(game.get_monster(0), 5) or me.health < 60:
         path = game.shortest_paths(me.location, 0)
         destination_node = path[0][0]
     # Check if we have moved this turn
