@@ -184,21 +184,24 @@ for line in fileinput.input():
     if (destination_node == 11):
         destination_node = 16
     
+    if (destination_node == 15 or destination_node == 17):
+        destination_node = 10
+
     monster_not_on_location = True
     # Logic for choosing stance
     
     # If in the same location as enemy, randomly choose stance
+    # If in the same location as enemy, randomly choose stance
     if enemy.location == me.location:
         chosen_stance = stances[random.randint(0,2)]
+
+        if game.has_monster(me.location) and not game.get_monster(me.location).dead:
+            chosen_stance = get_winning_stance(get_winning_stance(game.get_monster(me.location).stance))
+
         if enemyStance == enemy.stance:
             counter += 1
             if counter >= 8:
-                if enemyStance == "Rock":
-                    chosen_stance = "Paper"
-                elif enemyStance == "Paper":
-                    chosen_stance = "Scissors"
-                elif enemyStance == "Scissors":
-                    chosen_stance = "Paper"
+                chosen_stance = get_winning_stance(enemy.stance)
 
         else:
             enemyStance = enemy.stance
