@@ -103,12 +103,13 @@ def get_best_path_for_attack_balance():
             weight = 0
             if (shouldAttack(game.get_monster(node), 0)):
                 weight = 1
-            if (lowest_attack == "rock"):
+            if (lowest_attack == "rock" or game.get_monster(node).attack < 4):
                 total += weight*game.get_monster(node).death_effects.rock-(game.get_monster(node).attack)**4
-            elif (lowest_attack == "paper"):
+            elif (lowest_attack == "paper" or game.get_monster(node).attack < 4):
                 total += weight*game.get_monster(node).death_effects.paper-(game.get_monster(node).attack)**4
             else:
-                total += weight*game.get_monster(node).death_effects.scissors-(game.get_monster(node).attack)**4
+                if (game.get_monster(node).attack < 4):
+                    total += weight*game.get_monster(node).death_effects.scissors-(game.get_monster(node).attack)**4
         if total > highest_total:
             highest_total = total
             best_path = path
@@ -144,7 +145,13 @@ for line in fileinput.input():
     enemy = game.get_opponent()
     game.log(str(me.location))
     enemy_distance = min(get_distance(me.location, enemy.location, me.speed), get_distance(me.location, enemy.location, enemy.speed))
-    if me.health<=20: 
+    
+    # If health is less
+    if me.health<=20:
+        if me.location == 0: 
+            if ((game.get_monster(me.location).health/attack_current) < 7-me.speed):
+                paths = get_best_path_for_attack_balance()
+                destination_node = paths[0]
         path = game.shortest_paths(me.location, 0)
         destination_node = path[0][0]
     if shouldAttack(game.get_monster(0), 10):
@@ -183,12 +190,13 @@ for line in fileinput.input():
     monster_not_on_location = True
     # Logic for choosing stance
     if enemy.location == me.location:
-        if enemyStances[0] > enemyStances[1] and enemyStances[0] > enemyStances[2]:
-            chosen_stance = "Paper"
-        elif enemyStances[1] > enemyStances[2] and enemyStances[1] > enemyStances[0]:
-            chosen_stance = "Scissors"
-        else:
-            chosen_stance = "Rock"
+        chosen_stance = stances[random.randint(0,2)]
+        #if enemyStances[0] > enemyStances[1] and enemyStances[0] > enemyStances[2]:
+        #    chosen_stance = "Paper"
+        #elif enemyStances[1] > enemyStances[2] and enemyStances[1] > enemyStances[0]:
+        #    chosen_stance = "Scissors"
+        #else:
+        #    chosen_stance = "Rock"
 
     elif game.has_monster(me.location) and not game.get_monster(me.location).dead:
         chosen_stance = get_winning_stance(game.get_monster(me.location).stance)
