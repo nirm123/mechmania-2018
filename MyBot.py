@@ -1,4 +1,3 @@
-
 # keep these three import statements
 import game_API
 import fileinput
@@ -53,18 +52,20 @@ def get_monster_node_for_attack_balance():
     node = 0
     highest = -1000
     for monster in game.get_all_monsters():
-        if (lowest_attack == "rock"):
-            if (monster.death_effects.rock > highest and shouldAttack(monster)):
-                highest = monster.death_effects.rock
-                node = monster.location
-        elif (lowest_attack == "paper" and shouldAttack(monster)):
-            if (monster.death_effects.paper > highest):
-                highest = monster.death_effects.paper
-                node = monster.location
-        else:
-            if (monster.death_effects.scissors > highest and shouldAttack(monster)):
-                highest = monster.death_effects.scissors
-                node = monster.location
+        paths = game.shortest_paths(me.location, monster.location)
+        if (len(paths[0]) < 3):
+            if (lowest_attack == "rock"):
+                if (monster.death_effects.rock > highest and shouldAttack(monster)):
+                    highest = monster.death_effects.rock
+                    node = monster.location
+            elif (lowest_attack == "paper" and shouldAttack(monster)):
+                if (monster.death_effects.paper > highest):
+                    highest = monster.death_effects.paper
+                    node = monster.location
+            else:
+                if (monster.death_effects.scissors > highest and shouldAttack(monster)):
+                    highest = monster.death_effects.scissors
+                    node = monster.location
     return node
 
 # Find the path that would increase the lowest attack stat
@@ -81,11 +82,11 @@ def get_best_path_for_attack_balance():
             if (shouldAttack(game.get_monster(node))):
                 weight = 2
             if (lowest_attack == "rock"):
-                total += weight*game.get_monster(node).death_effects.rock
+                total += weight*game.get_monster(node).death_effects.rock-5*game.get_monster(node).attack
             elif (lowest_attack == "paper"):
-                total += weight*game.get_monster(node).death_effects.paper
+                total += weight*game.get_monster(node).death_effects.paper-5*game.get_monster(node).attack
             else:
-                total += weight*game.get_monster(node).death_effects.scissors
+                total += weight*game.get_monster(node).death_effects.scissors-5*game.get_monster(node).attack
         if total > highest_total:
             highest_total = total
             best_path = path
@@ -119,20 +120,29 @@ for line in fileinput.input():
 
     me = game.get_self()
     enemy = game.get_opponent()
-
+    game.log(str(me.location))
     enemy_distance = min(get_distance(me.location, enemy.location, me.speed), get_distance(me.location, enemy.location, enemy.speed))
-
+    if shouldAttack(game.get_monster(0)):
+        path = game.shortest_paths(me.location, 0)
+        destination_node = path[0][0]
     # Check if we have moved this turn
-    if me.location == me.destination:
+    elif me.location == me.destination:
+        if game.has_monster(me.location):
+            if game.get_monster(me.location).dead:
         # Get the path to the monster that will best balance our attack
-        paths = get_best_path_for_attack_balance()
-        destination_node = paths[0]
+                paths = get_best_path_for_attack_balance()
+                destination_node = paths[0]
+            else:
+                destination_node = me.location
+        else:
+            paths = get_best_path_for_attack_balance()
+            destination_node = paths[0]
 
     else:
         destination_node = me.destination
 
     
-
+    monster_not_on_location = True
     # Logic for choosing stance
     if enemy.location == me.location:
         if enemyStances[0] > enemyStances[1] and enemyStances[0] > enemyStances[2]:
@@ -145,9 +155,10 @@ for line in fileinput.input():
     elif game.has_monster(me.location) and not game.get_monster(me.location).dead:
         chosen_stance = get_winning_stance(game.get_monster(me.location).stance)
         game.log(str(chosen_stance))
+        monster_not_on_location= False
 
-    #elif game.has_monster(destination_node):
-    #    chosen_stance = get_winning_stance(game.get_monster(destination_node).stance)
+    if game.has_monster(destination_node) and monster_not_on_location:
+        chosen_stance = get_winning_stance(game.get_monster(destination_node).stance)
 
     # Keep track of enemy moves
     updateEnemyStances();
