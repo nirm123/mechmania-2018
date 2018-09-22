@@ -34,6 +34,21 @@ def shouldAttack(monster, shift):
     totalTurnsToMove = get_distance(me.location, monster.location, me.speed)
     return totalTurnsToMove  >= turnsToRespawn
 
+# Find path of least damage
+def minDamagePath(paths):
+    leastDamagePath = []
+    damage = 9999
+    for path in paths:
+        pathDamage = 0
+        for node in path:
+            if game.has_monster(node):
+                pathDamage += game.get_monster(node).attack
+
+        if pathDamage < damage:
+            leastDamagePath = path
+            damage = pathDamage
+
+    return leastDamagePath
 # Find the attack stat which is lowest
 def get_lowest_attack():
     lowest_attack = "rock"
