@@ -11,6 +11,9 @@ first_line = True # DO NOT REMOVE
 # global variables or other functions can go here
 stances = ["Rock", "Paper", "Scissors"]
 
+enemyStance = ""
+counter = 0
+
 # Check if monster will be arrive by the time we arrive
 def shouldAttack(monster, shift):
     if not monster.dead:
@@ -181,6 +184,19 @@ for line in fileinput.input():
     # If in the same location as enemy, randomly choose stance
     if enemy.location == me.location:
         chosen_stance = stances[random.randint(0,2)]
+        if enemyStance == enemy.stance:
+            counter += 1
+            if counter >= 8:
+                if enemyStance == "Rock":
+                    chosen_stance = "Paper"
+                elif enemyStance == "Paper":
+                    chosen_stance = "Scissors"
+                elif enemyStance == "Scissors":
+                    chosen_stance = "Paper"
+
+        else:
+            enemyStance = enemy.stance
+            counter = 0
 
     # If in the same location of a monster who is not dead
     elif game.has_monster(me.location) and not game.get_monster(me.location).dead:
