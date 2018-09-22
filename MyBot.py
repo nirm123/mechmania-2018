@@ -26,7 +26,7 @@ def updateEnemyStances():
 
 def shouldAttack(monster):
     if not monster.dead:
-        return 1
+        return True
 
     turnsToRespawn = monster.respawn_counter
     monsterLoc = monster.location
@@ -37,10 +37,7 @@ def shouldAttack(monster):
     RestTurnsToMove = 7 - game.get_self().speed
     totalTurnsToMove = RestTurnsToMove * nodeAmount
 
-    if totalTurnsToMove  >= turnsToRespawn:
-        return 1
-    else:
-        return 0
+    return totalTurnsToMove  >= turnsToRespawn
 
 def get_lowest_attack():
     lowest_attack = "rock"
@@ -79,7 +76,7 @@ def get_best_path_for_attack_balance():
         total = 0
         for node in path:
             lowest_attack = get_lowest_attack()
-            if (not game.has_monster(node)):
+            if (not game.has_monster(node) and shouldAttack(game.get_monster(node))):
                 continue
             if (lowest_attack == "rock"):
                 total += game.get_monster(node).death_effects.rock
