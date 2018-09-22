@@ -13,28 +13,28 @@ stances = ["Rock", "Paper", "Scissors"]
 
 enemyStances = [0, 0, 0]
 
-def updateEnemyStances(game, me):
+def updateEnemyStances():
     opp = game.get_opponent()
-    if opp.location == me.location:
+    if opp.location == game.get_self().location:
         stance = opp.stance
         if stance == "Rock":
-            enemyStances[0]++
+            enemyStances[0] += 1
         elif stance == "Paper":
-            enemyStances[1]++
+            enemyStances[1] += 1
         elif stance == "Scissors":
-            enemyStances[2]++
+            enemyStances[2] += 1
 
-def shouldAttack(game, monster, me):
-    if !monster.dead:
+def shouldAttack():
+    if not monster.dead:
         return 1
 
     turnsToRespawn = monster.respawn_counter
     monsterLoc = monster.location
 
-    paths = game.shortest_paths(me.location, monster.location)
+    paths = game.shortest_paths(game.get_self().location, monster.location)
     nodeAmount = length(paths[0])
 
-    RestTurnsToMove = 7 - me.speed
+    RestTurnsToMove = 7 - game.get_self().speed
     totalTurnsToMove = RestTurnsToMove * nodeAmount
 
     if totalTurnsToMove  >= turnsToRespawn:
