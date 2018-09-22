@@ -1,3 +1,4 @@
+
 # keep these three import statements
 import game_API
 import fileinput
@@ -11,8 +12,10 @@ first_line = True # DO NOT REMOVE
 # global variables or other functions can go here
 stances = ["Rock", "Paper", "Scissors"]
 
+# Variable keeping count of enemy stances
 enemyStances = [0, 0, 0]
 
+# Keep count of enemy stances
 def updateEnemyStances():
     opp = game.get_opponent()
     if opp.location == game.get_self().location:
@@ -24,15 +27,15 @@ def updateEnemyStances():
         elif stance == "Scissors":
             enemyStances[2] += 1
 
+# Check if monster will be arrive by the time we arrive
 def shouldAttack(monster):
     if not monster.dead:
         return True
-
     turnsToRespawn = monster.respawn_counter
-
     totalTurnsToMove = get_distance(me.location, monster.location, me.speed)
     return totalTurnsToMove  >= turnsToRespawn
 
+# Find the attack stat which is lowest
 def get_lowest_attack():
     lowest_attack = "rock"
     lowest_damage = game.get_self().rock;
@@ -44,25 +47,27 @@ def get_lowest_attack():
         lowest_attack = "scissors"
     return lowest_attack
 
+# Find the monster who would increase lowest attack stat
 def get_monster_node_for_attack_balance():
     lowest_attack = get_lowest_attack()
     node = 0
     highest = -1000
     for monster in game.get_all_monsters():
         if (lowest_attack == "rock"):
-            if (monster.death_effects.rock > highest):
+            if (monster.death_effects.rock > highest and shouldAttack(monster)):
                 highest = monster.death_effects.rock
                 node = monster.location
-        elif (lowest_attack == "paper"):
+        elif (lowest_attack == "paper" and shouldAttack(monster)):
             if (monster.death_effects.paper > highest):
                 highest = monster.death_effects.paper
                 node = monster.location
         else:
-            if (monster.death_effects.scissors > highest):
+            if (monster.death_effects.scissors > highest and shouldAttack(monster)):
                 highest = monster.death_effects.scissors
                 node = monster.location
     return node
 
+# Find the path that would increase the lowest attack stat
 def get_best_path_for_attack_balance():
     highest_total = -1000
     best_path = []
@@ -70,19 +75,23 @@ def get_best_path_for_attack_balance():
         total = 0
         for node in path:
             lowest_attack = get_lowest_attack()
-            if (not game.has_monster(node) and shouldAttack(game.get_monster(node))):
+            if (not game.has_monster(node)):
                 continue
+            weight = 1
+            if (shouldAttack(game.get_monster(node))):
+                weight = 2
             if (lowest_attack == "rock"):
-                total += game.get_monster(node).death_effects.rock
+                total += weight*game.get_monster(node).death_effects.rock
             elif (lowest_attack == "paper"):
-                total += game.get_monster(node).death_effects.paper
+                total += weight*game.get_monster(node).death_effects.paper
             else:
-                total += game.get_monster(node).death_effects.scissors
+                total += weight*game.get_monster(node).death_effects.scissors
         if total > highest_total:
             highest_total = total
             best_path = path
     return best_path
 
+# Return stance that would win
 def get_winning_stance(stance):
     if stance == "Rock":
         return "Paper"
@@ -91,6 +100,7 @@ def get_winning_stance(stance):
     elif stance == "Scissors":
         return "Rock"
 
+# Find number of turns to travel between 2 nodes
 def get_distance(start, end, speed):
     path = game.shortest_paths(start, end)
     return len(path[0])*(7-speed)
@@ -111,33 +121,33 @@ for line in fileinput.input():
     enemy = game.get_opponent()
 
     enemy_distance = min(get_distance(me.location, enemy.location, me.speed), get_distance(me.location, enemy.location, enemy.speed))
-    
-    game.log("Distance to enemy: " + str(enemy_distance))
 
-    if me.location == me.destination: # check if we have moved this turn
-        # get all living monsters closest to me
-        monsters = game.nearest_monsters(me.location, 1)
-	
-        # choose a monster to move to at random
-        monster_to_move_to = get_monster_node_for_attack_balance()# monsters[random.randint(0, len(monsters)-1)]
-
-        # get the set of shortest paths to that monster
-        paths = get_best_path_for_attack_balance()#game.shortest_paths(me.location, monster_to_move_to)
+    # Check if we have moved this turn
+    if me.location == me.destination:
+        # Get the path to the monster that will best balance our attack
+        paths = get_best_path_for_attack_balance()
         destination_node = paths[0]
 
     else:
         destination_node = me.destination
 
+    # Logic for choosing stance
     if game.has_monster(destination_node):
-        monster_next = game.get_monster(destination_node)
-        chosen_stance = get_winning_stance(monster_next.stance)
+        chosen_stance = get_winning_stance(game.get_monster(destination_node).stance)
 
-    #if game.has_monster(me.location):
-        # if there's a monster at my location, choose the stance that damages that monster
-        #chosen_stance = get_winning_stance(game.get_monster(me.location).stance)
+    elif game.has_monster(me.location):
+        chosen_stance = get_winning_stance(game.get_monster(me.location).stance)
+
     else:
-        # otherwise, pick a random stance
-        chosen_stance = stances[random.randint(0, 2)]
+        if enemyStances[0] > enemyStances[1] and enemyStances[0] > enemyStances[2]:
+            chosen_stance = "Paper"
+        elif enemyStances[1] > enemyStances[2] and enemyStances[1] > enemyStances[0]:
+            chosen_stance = "Scissors"
+        else:
+            chosen_stance = "Rock"
 
-    # submit your decision for the turn (This function should be called exactly once per turn)
+    # Keep track of enemy moves
+    updateEnemyStances();
+
+    # submit your decision for the turn 
     game.submit_decision(destination_node, chosen_stance)
