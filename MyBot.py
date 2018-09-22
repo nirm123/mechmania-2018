@@ -21,14 +21,17 @@ def shouldAttack(monster, shift):
 
 # Find the attack stat which is lowest
 def get_lowest_attack():
+    me = game.get_self()
     lowest_attack = "rock"
-    lowest_damage = game.get_self().rock;
-    if (game.get_self().paper < lowest_damage):
-        lowest_damage = game.get_self().paper
+    lowest_damage = me.rock;
+    if (me.paper < lowest_damage):
+        lowest_damage = me.paper
         lowest_attack = "paper"
-    if (game.get_self().scissors < lowest_damage):
-        lowest_damage = game.get_self().scissors
+    if (me.scissors < lowest_damage):
+        lowest_damage = me.scissors
         lowest_attack = "scissors"
+    if (me.speed < 2):
+        lowest_attack = "speed"
     return lowest_attack
 
 # Find the monster who would increase lowest attack stat
@@ -54,10 +57,12 @@ def get_monster_node_for_attack_balance():
                 if (monster.death_effects.paper > highest):
                     highest = monster.death_effects.paper
                     node = monster.location
-            else:
+            elif (lowest_attack == "scissors" and shouldAttack(monster, 0)):
                 if (monster.death_effects.scissors > highest and shouldAttack(monster, 0)):
                     highest = monster.death_effects.scissors
                     node = monster.location
+            else:
+                node = 3
     return node
 
 # Find the path that would increase the lowest attack stat
@@ -157,6 +162,8 @@ for line in fileinput.input():
     else:
         destination_node = me.destination
 
+    if (destination_node == 11):
+        destination_node = 0
     
     monster_not_on_location = True
     # Logic for choosing stance
@@ -173,9 +180,6 @@ for line in fileinput.input():
     # If no monster or person then set next node
     if game.has_monster(destination_node) and monster_not_on_location and (enemy.location != me.location):
         chosen_stance = get_winning_stance(game.get_monster(destination_node).stance)
-
-    # Keep track of enemy moves
-    updateEnemyStances();
 
     # submit your decision for the turn 
     game.submit_decision(destination_node, chosen_stance)
