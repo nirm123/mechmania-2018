@@ -149,12 +149,11 @@ for line in fileinput.input():
         else:
             path = game.shortest_paths(me.location, 0)
             destination_node = path[0][0]
-
+    go = True
     # If health monster is alive go to 0
     if shouldAttack(game.get_monster(0), 10):
         path = game.shortest_paths(me.location, 0)
         destination_node = path[0][0]
-
     # Check if we have moved this turn
     elif me.location == me.destination:
         if game.has_monster(me.location):
@@ -166,17 +165,24 @@ for line in fileinput.input():
                 if ((game.get_monster(me.location).health/attack_current) < 7-me.speed):
                     paths = get_best_path_for_attack_balance()
                     destination_node = paths[0]
+                    go = True
                 else:
                     destination_node = me.location
+                    if game.get_monster(me.location).health/attack_current <= 2:
+                        go = False
         else:
             paths = get_best_path_for_attack_balance()
             destination_node = paths[0]
 
     else:
         destination_node = me.destination
+    # If health monster is alive go to 0
+    if shouldAttack(game.get_monster(0), 10) and go:
+        path = game.shortest_paths(me.location, 0)
+        destination_node = path[0][0]
 
     if (destination_node == 11):
-        destination_node = 0
+        destination_node = 16
     
     monster_not_on_location = True
     # Logic for choosing stance
