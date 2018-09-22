@@ -34,13 +34,8 @@ def shouldAttack(game, monster, me):
     paths = game.shortest_paths(me.location, monster.location)
     nodeAmount = length(paths[0])
 
-    # turns to move the first node.
-    firstTurnsToMove = me.movement_counter - me.speed
-
-    # turns to move the rest of the nodes
     RestTurnsToMove = 7 - me.speed
-
-    totalTurnsToMove = firstTurnsToMove + (RestTurnsToMove * (nodeAmount - 1))
+    totalTurnsToMove = RestTurnsToMove * nodeAmount
 
     if totalTurnsToMove  >= turnsToRespawn:
         return 1
