@@ -11,21 +11,6 @@ first_line = True # DO NOT REMOVE
 # global variables or other functions can go here
 stances = ["Rock", "Paper", "Scissors"]
 
-# Variable keeping count of enemy stances
-enemyStances = [0, 0, 0]
-
-# Keep count of enemy stances
-def updateEnemyStances():
-    opp = game.get_opponent()
-    if opp.location == game.get_self().location:
-        stance = opp.stance
-        if stance == "Rock":
-            enemyStances[0] += 1
-        elif stance == "Paper":
-            enemyStances[1] += 1
-        elif stance == "Scissors":
-            enemyStances[2] += 1
-
 # Check if monster will be arrive by the time we arrive
 def shouldAttack(monster, shift):
     if not monster.dead:
@@ -34,21 +19,6 @@ def shouldAttack(monster, shift):
     totalTurnsToMove = get_distance(me.location, monster.location, me.speed)
     return totalTurnsToMove  >= turnsToRespawn
 
-# Find path of least damage
-def minDamagePath(paths):
-    leastDamagePath = []
-    damage = 9999
-    for path in paths:
-        pathDamage = 0
-        for node in path:
-            if game.has_monster(node):
-                pathDamage += game.get_monster(node).attack
-
-        if pathDamage < damage:
-            leastDamagePath = path
-            damage = pathDamage
-
-    return leastDamagePath
 # Find the attack stat which is lowest
 def get_lowest_attack():
     lowest_attack = "rock"
@@ -190,21 +160,18 @@ for line in fileinput.input():
     
     monster_not_on_location = True
     # Logic for choosing stance
+    
+    # If in the same location as enemy, randomly choose stance
     if enemy.location == me.location:
         chosen_stance = stances[random.randint(0,2)]
-        #if enemyStances[0] > enemyStances[1] and enemyStances[0] > enemyStances[2]:
-        #    chosen_stance = "Paper"
-        #elif enemyStances[1] > enemyStances[2] and enemyStances[1] > enemyStances[0]:
-        #    chosen_stance = "Scissors"
-        #else:
-        #    chosen_stance = "Rock"
 
+    # If in the same location of a monster who is not dead
     elif game.has_monster(me.location) and not game.get_monster(me.location).dead:
         chosen_stance = get_winning_stance(game.get_monster(me.location).stance)
-        game.log(str(chosen_stance))
         monster_not_on_location= False
 
-    if game.has_monster(destination_node) and monster_not_on_location:
+    # If no monster or person then set next node
+    if game.has_monster(destination_node) and monster_not_on_location and (enemy.location != me.location):
         chosen_stance = get_winning_stance(game.get_monster(destination_node).stance)
 
     # Keep track of enemy moves
