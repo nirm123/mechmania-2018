@@ -80,7 +80,7 @@ def get_winning_stance(stance):
     elif stance == "Scissors":
         return "Rock"
 
-def get_distance(game, start, end, speed):
+def get_distance(start, end, speed):
     path = game.shortest_paths(start, end)
     return len(path[0])*(7-speed)
 
@@ -99,7 +99,7 @@ for line in fileinput.input():
     me = game.get_self()
     enemy = game.get_opponent()
 
-    enemy_distance = min(get_distance(game, me.location, enemy.location, me.speed), get_distance(game, me.location, enemy.location, enemy.speed))
+    enemy_distance = min(get_distance(me.location, enemy.location, me.speed), get_distance(me.location, enemy.location, enemy.speed))
     
     game.log("Distance to enemy: " + str(enemy_distance))
 
@@ -108,10 +108,10 @@ for line in fileinput.input():
         monsters = game.nearest_monsters(me.location, 1)
 	
         # choose a monster to move to at random
-        monster_to_move_to = monsters[random.randint(0, len(monsters)-1)]
+        monster_to_move_to = get_monster_node_for_attack_balance()# monsters[random.randint(0, len(monsters)-1)]
 
         # get the set of shortest paths to that monster
-        paths = game.shortest_paths(me.location, monster_to_move_to.location)
+        paths = game.shortest_paths(me.location, monster_to_move_to)
         destination_node = paths[random.randint(0, len(paths)-1)][0]
 
     else:
