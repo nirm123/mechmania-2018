@@ -11,6 +11,42 @@ first_line = True # DO NOT REMOVE
 # global variables or other functions can go here
 stances = ["Rock", "Paper", "Scissors"]
 
+enemyStances = [0, 0, 0]
+
+def updateEnemyStances(game, me):
+    opp = game.get_opponent()
+    if opp.location == me.location:
+        stance = opp.stance
+        if stance == "Rock":
+            enemyStances[0]++
+        elif stance == "Paper":
+            enemyStances[1]++
+        elif stance == "Scissors":
+            enemyStances[2]++
+
+def shouldAttack(game, monster, me):
+    if !monster.dead:
+        return 1
+
+    turnsToRespawn = monster.respawn_counter
+    monsterLoc = monster.location
+
+    paths = game.shortest_paths(me.location, monster.location)
+    nodeAmount = length(paths[0])
+
+    # turns to move the first node.
+    firstTurnsToMove = me.movement_counter - me.speed
+
+    # turns to move the rest of the nodes
+    RestTurnsToMove = 7 - me.speed
+
+    totalTurnsToMove = firstTurnsToMove + (RestTurnsToMove * (nodeAmount - 1))
+
+    if totalTurnsToMove  > turnsToRespawn:
+        return 1
+    else:
+        return 0
+
 def get_lowest_attack():
     lowest_attack = "rock"
     lowest_damage = game.get_self().rock;
