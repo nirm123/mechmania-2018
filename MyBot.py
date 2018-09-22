@@ -149,11 +149,12 @@ for line in fileinput.input():
     # If health is less
     if me.health<=20:
         if me.location == 0: 
-            if ((game.get_monster(me.location).health/attack_current) < 7-me.speed):
+            if (not game.get_monster(0).dead and (game.get_monster(me.location).health/attack_current) < 7-me.speed):
                 paths = get_best_path_for_attack_balance()
                 destination_node = paths[0]
-        path = game.shortest_paths(me.location, 0)
-        destination_node = path[0][0]
+        else:
+            path = game.shortest_paths(me.location, 0)
+            destination_node = path[0][0]
     if shouldAttack(game.get_monster(0), 10):
         path = game.shortest_paths(me.location, 0)
         destination_node = path[0][0]
