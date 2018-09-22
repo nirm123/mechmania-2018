@@ -120,16 +120,31 @@ for line in fileinput.input():
     enemy = game.get_opponent()
     game.log(str(me.location))
     enemy_distance = min(get_distance(me.location, enemy.location, me.speed), get_distance(me.location, enemy.location, enemy.speed))
-    
-    # If health is less
+  
+    current_stance = me.stance
+    current_stance = current_stance.lower()
+    attack_current = 0
+    if (current_stance == "rock"):
+        attack_current = me.rock
+    elif current_stance == "paper":
+        attack_current = me.paper
+    else:
+        attack_current = me.scissors
+
+    # If health is less than 20
     if me.health<=20:
+        # If my location is node 0
         if me.location == 0: 
+            # If monster alive and health/attack < move time 
             if (not game.get_monster(0).dead and (game.get_monster(me.location).health/attack_current) < 7-me.speed):
                 paths = get_best_path_for_attack_balance()
                 destination_node = paths[0]
+            else:
+                destination_node = me.location
         else:
             path = game.shortest_paths(me.location, 0)
             destination_node = path[0][0]
+
     if shouldAttack(game.get_monster(0), 10):
         path = game.shortest_paths(me.location, 0)
         destination_node = path[0][0]
@@ -141,15 +156,6 @@ for line in fileinput.input():
                 paths = get_best_path_for_attack_balance()
                 destination_node = paths[0]
             else:
-                current_stance = me.stance
-                current_stance = current_stance.lower()
-                attack_current = 0
-                if (current_stance == "rock"):
-                    attack_current = me.rock
-                elif current_stance == "paper":
-                    attack_current = me.paper
-                else:
-                    attack_current = me.scissors
                 if ((game.get_monster(me.location).health/attack_current) < 7-me.speed):
                     paths = get_best_path_for_attack_balance()
                     destination_node = paths[0]
