@@ -42,7 +42,7 @@ def shouldAttack(game, monster, me):
 
     totalTurnsToMove = firstTurnsToMove + (RestTurnsToMove * (nodeAmount - 1))
 
-    if totalTurnsToMove  > turnsToRespawn:
+    if totalTurnsToMove  >= turnsToRespawn:
         return 1
     else:
         return 0
