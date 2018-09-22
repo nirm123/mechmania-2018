@@ -72,6 +72,26 @@ def get_monster_node_for_attack_balance():
                 node = monster.location
     return node
 
+def get_best_path_for_attack_balance():
+    highest_total = -1000
+    best_path = []
+    for path in game.shortest_paths(game.get_self().location, get_monster_node_for_attack_balance()):
+        total = 0
+        for node in path:
+            lowest_attack = get_lowest_attack()
+            if (not game.has_monster(node)):
+                continue
+            if (lowest_attack == "rock"):
+                total += game.get_monster(node).death_effects.rock
+            elif (lowest_attack == "paper"):
+                total += game.get_monster(node).death_effects.paper
+            else:
+                total += game.get_monster(node).death_effects.scissors
+        if total > highest_total:
+            highest_total = total
+            best_path = path
+    return best_path
+
 def get_winning_stance(stance):
     if stance == "Rock":
         return "Paper"
