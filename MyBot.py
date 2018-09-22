@@ -24,7 +24,7 @@ def updateEnemyStances():
         elif stance == "Scissors":
             enemyStances[2] += 1
 
-def shouldAttack():
+def shouldAttack(monster):
     if not monster.dead:
         return 1
 
