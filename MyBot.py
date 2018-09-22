@@ -51,9 +51,16 @@ def get_monster_node_for_attack_balance():
     lowest_attack = get_lowest_attack()
     node = 0
     highest = -1000
+    max_distance = 0
+    if me.health < 60:
+        max_distance = 1;
+    elif me.health < 100:
+        max_distance = 2
+    else:
+        max_distance = 3
     for monster in game.get_all_monsters():
         paths = game.shortest_paths(me.location, monster.location)
-        if (len(paths[0]) < 3):
+        if (len(paths[0]) <= max_distance):
             if (lowest_attack == "rock"):
                 if (monster.death_effects.rock > highest and shouldAttack(monster, 0)):
                     highest = monster.death_effects.rock
@@ -78,15 +85,15 @@ def get_best_path_for_attack_balance():
             lowest_attack = get_lowest_attack()
             if (not game.has_monster(node)):
                 continue
-            weight = 1
+            weight = 0
             if (shouldAttack(game.get_monster(node), 0)):
-                weight = 2
+                weight = 1
             if (lowest_attack == "rock"):
-                total += weight*game.get_monster(node).death_effects.rock-5*game.get_monster(node).attack
+                total += weight*game.get_monster(node).death_effects.rock-(game.get_monster(node).attack)**4
             elif (lowest_attack == "paper"):
-                total += weight*game.get_monster(node).death_effects.paper-5*game.get_monster(node).attack
+                total += weight*game.get_monster(node).death_effects.paper-(game.get_monster(node).attack)**4
             else:
-                total += weight*game.get_monster(node).death_effects.scissors-5*game.get_monster(node).attack
+                total += weight*game.get_monster(node).death_effects.scissors-(game.get_monster(node).attack)**4
         if total > highest_total:
             highest_total = total
             best_path = path
@@ -122,7 +129,10 @@ for line in fileinput.input():
     enemy = game.get_opponent()
     game.log(str(me.location))
     enemy_distance = min(get_distance(me.location, enemy.location, me.speed), get_distance(me.location, enemy.location, enemy.speed))
-    if shouldAttack(game.get_monster(0), 5) or me.health < 60:
+    if me.health<=20: 
+        path = game.shortest_paths(me.location, 0)
+        destination_node = path[0][0]
+    if shouldAttack(game.get_monster(0), 10):
         path = game.shortest_paths(me.location, 0)
         destination_node = path[0][0]
     # Check if we have moved this turn
@@ -133,7 +143,20 @@ for line in fileinput.input():
                 paths = get_best_path_for_attack_balance()
                 destination_node = paths[0]
             else:
-                destination_node = me.location
+                current_stance = me.stance
+                current_stance = current_stance.lower()
+                attack_current = 0
+                if (current_stance == "rock"):
+                    attack_current = me.rock
+                elif current_stance == "paper":
+                    attack_current = me.paper
+                else:
+                    attack_current = me.scissors
+                if ((game.get_monster(me.location).health/attack_current) < 7-me.speed):
+                    paths = get_best_path_for_attack_balance()
+                    destination_node = paths[0]
+                else:
+                    destination_node = me.location
         else:
             paths = get_best_path_for_attack_balance()
             destination_node = paths[0]
