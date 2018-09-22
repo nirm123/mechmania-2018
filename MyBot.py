@@ -11,6 +11,36 @@ first_line = True # DO NOT REMOVE
 # global variables or other functions can go here
 stances = ["Rock", "Paper", "Scissors"]
 
+def get_lowest_attack():
+    lowest_attack = "rock"
+    lowest_damage = game.get_self().rock;
+    if (game.get_self().paper < lowest_damage):
+        lowest_damage = game.get_self().paper
+        lowest_attack = "paper"
+    if (game.get_self().scissors < lowest_damage):
+        lowest_damage = game.get_self().scissors
+        lowest_attack = "scissors"
+    return lowest_attack
+
+def get_monster_node_for_attack_balance():
+    lowest_attack = get_lowest_attack()
+    node = 0
+    highest = -1000
+    for monster in game.get_all_monsters():
+        if (lowest_attack == "rock"):
+            if (monster.death_effects.rock > highest):
+                highest = monster.death_effects.rock
+                node = monster.location
+        elif (lowest_attack == "paper"):
+            if (monster.death_effects.paper > highest):
+                highest = monster.death_effects.paper
+                node = monster.location
+        else:
+            if (monster.death_effects.scissors > highest):
+                highest = monster.death_effects.scissors
+                node = monster.location
+    return node
+
 def get_winning_stance(stance):
     if stance == "Rock":
         return "Paper"
@@ -43,6 +73,7 @@ for line in fileinput.input():
         # get the set of shortest paths to that monster
         paths = game.shortest_paths(me.location, monster_to_move_to.location)
         destination_node = paths[random.randint(0, len(paths)-1)][0]
+
     else:
         destination_node = me.destination
 
