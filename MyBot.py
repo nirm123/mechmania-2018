@@ -103,9 +103,9 @@ def get_best_path_for_attack_balance():
             weight = 0
             if (shouldAttack(game.get_monster(node), 0)):
                 weight = 1
-            if (lowest_attack == "rock" or game.get_monster(node).attack < 4):
+            if (lowest_attack == "rock" and game.get_monster(node).attack < 4):
                 total += weight*game.get_monster(node).death_effects.rock-(game.get_monster(node).attack)**4
-            elif (lowest_attack == "paper" or game.get_monster(node).attack < 4):
+            elif (lowest_attack == "paper" and game.get_monster(node).attack < 4):
                 total += weight*game.get_monster(node).death_effects.paper-(game.get_monster(node).attack)**4
             else:
                 if (game.get_monster(node).attack < 4):
