@@ -19,6 +19,10 @@ def get_winning_stance(stance):
     elif stance == "Scissors":
         return "Rock"
 
+def get_distance(game, start, end, speed):
+    path = game.shortest_paths(start, end)
+    return len(path[0])*(7-speed)
+
 # main player script logic
 # DO NOT CHANGE BELOW ----------------------------
 for line in fileinput.input():
@@ -32,11 +36,14 @@ for line in fileinput.input():
     # code in this block will be executed each turn of the game
 
     me = game.get_self()
+    enemy = game.get_opponent()
+    
+    game.log("Distance to enemy: " + str(get_distance(game, me.location, enemy.location, me.speed)))
 
     if me.location == me.destination: # check if we have moved this turn
         # get all living monsters closest to me
         monsters = game.nearest_monsters(me.location, 1)
-
+	
         # choose a monster to move to at random
         monster_to_move_to = monsters[random.randint(0, len(monsters)-1)]
 
