@@ -67,8 +67,10 @@ for line in fileinput.input():
 
     me = game.get_self()
     enemy = game.get_opponent()
+
+    enemy_distance = min(get_distance(game, me.location, enemy.location, me.speed), get_distance(game, me.location, enemy.location, enemy.speed))
     
-    game.log("Distance to enemy: " + str(get_distance(game, me.location, enemy.location, me.speed)))
+    game.log("Distance to enemy: " + str(enemy_distance))
 
     if me.location == me.destination: # check if we have moved this turn
         # get all living monsters closest to me
